@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@layer components {
+    .meduim_screen{
+        @apply flex flex-row ml-auto gap-11 justify-center items-center relative
+    }
+    .font-loader{
+        font-family: 'Noto Sans';
+    }
+}
