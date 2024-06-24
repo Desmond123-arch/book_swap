@@ -1,5 +1,3 @@
-import { Home } from './pages/Home';
-import { Login } from './pages/Login';
 import { useEffect } from "react";
 import routes from './routes';
 
