@@ -10,8 +10,12 @@ from django.http import Http404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth import get_user_model
 
-class BookList(generics.ListAPIView):
+User = get_user_model()
+
+
+class BookList(generics.ListCreateAPIView):
     serializer_class = BookSerializer
     def get_queryset(self):
         queryset = Book.objects.all()
@@ -19,6 +23,9 @@ class BookList(generics.ListAPIView):
         if genre:
             queryset = queryset.filter(genre=genre)
         return queryset
+    
+    def perform_create(self, serializer):
+        serializer.save(posted_by=self.request.user)
     
     # """ List all books in the database"""
     # def get(self, request, format=None):
@@ -30,10 +37,9 @@ class BookList(generics.ListAPIView):
     #     """ Add a book to the database """
     #     serializer = BookSerializer(data=request.data)
     #     if serializer.is_valid():
-    #         serializer.save()
+    #         serializer.save(posted_by=self.request.user)
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 class BookDetail(generics.RetrieveDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -74,11 +80,13 @@ class UserBooks(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         username = self.request.query_params.get('user', None)
-        user = User.objects.filter(username=username).first()
+        user = User.objects.filter(email=username).first()
+        print(user)
         if user:
             query_set = user.book_set.all()
             print(query_set)
             return query_set
+        
         
 class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
     """ Get a particular book posted by the user"""
@@ -87,7 +95,7 @@ class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserBookSerializer
     def get_queryset(self):
         username = self.request.query_params.get('user', None)
-        user = User.objects.filter(username=username).first()
+        user = User.objects.filter(email=username).first()
         if user:
             query_set = user.book_set.all()
             print(query_set)

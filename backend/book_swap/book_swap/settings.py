@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_api.apps.RestApiConfig'
+    "rest_api"
 
 ]
 REST_FRAMEWORK = {
@@ -142,3 +142,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'rest_api.CustomUser'
+AUTHENTICATION_BACKENDS = [
+    'rest_api.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as a fallback
+]
