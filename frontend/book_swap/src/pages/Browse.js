@@ -10,11 +10,6 @@ let books = [{
     "condition": "Good",
     "description": "A novel about the dangers of totalitarianism.",
     "image": hobbit,
-    "posted_by": {
-        "id": 1,
-        "username": "john_doe",
-        "email": "john@example.com"
-    },
     "created_at": "2024-06-14T18:30:00Z"
 }]
 
