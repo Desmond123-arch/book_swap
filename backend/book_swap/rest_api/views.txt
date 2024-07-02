@@ -1,0 +1,20 @@
+VIEWS TO BE CONSIDERED
+--------BOOKS------------------(users should be able to send post, get, put and delete requests)
+view for browse => ALL BOOKS (BROWSE)+
+views for genres => PARTICULAR BOOK (BROWSE)+
+views for paritcular book => particular book (DETAIL)+
+add a paritcular book => post requests (POST A BOOK)+
+get all books posted by user => get all books(MY BOOKS)+
+
+
+---------------PROFILE----------------
+GET USER PROFILE DETAILS =>  show details(PROFILE)
+allow editing of profile => put request
+delete account => delete request
+
+-------LOGIN-----------------
+login into account
+------logout--------------
+logout of account
+------sign up-------------
+create an account

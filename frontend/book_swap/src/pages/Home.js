@@ -1,8 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import desktopImage from '../images/desktop.png';
 import { CiClock2 } from "react-icons/ci";
 import { CiMoneyBill } from "react-icons/ci";
 import { GoPeople } from "react-icons/go";
+import pathConstants from "../routes/pathConstants";
 
 export default function Home(){
   return <div>
@@ -12,8 +14,8 @@ export default function Home(){
           <h1 className="text-4xl font-bold text-white">Welcome to book swap</h1>
           <p className="text-lg text-white">Trade used books with other local readers. Better than buying, better than borrowing</p>
           <div className="flex gap-3 flex-row">
-            <button className="rounded-xl bg-orange-500 px-4 p-2 hover:underline font-bold text-white">Browse books</button>
-            <button className="rounded-xl bg-gray-300 px-4 p-2 md:mr-5 hover:underline font-bold">Post a book</button>
+            <Link to={pathConstants.BROWSE}><button className="rounded-xl bg-orange-500 px-4 p-2 hover:underline font-bold text-white">Browse books</button></Link>
+            <Link to={pathConstants.POST}><button className="rounded-xl bg-gray-300 px-4 p-2 md:mr-5 hover:underline font-bold">Post a book</button></Link>
           </div>
       </div>
       <h1 className="text-3xl font-[500] ml-10">Why swap books?</h1>

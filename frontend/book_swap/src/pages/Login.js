@@ -1,6 +1,23 @@
 import { useState } from 'react';
 import google_icon from '../images/google_icon.svg'
+import axios from 'axios'
 
+async function loginUser(username, password){
+    try {
+        const response = await axios.post('http://localhost:8000/token', {
+            username,
+            password,
+        });
+        const {access, refresh} = response.data;
+
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
+        return true;
+    }
+    catch(error){
+        console.log("An error occured", error);
+    }
+}
 export default function Login() {
     // VALIDATE EMAILS
     const [formValues, setFormValues] = useState({
@@ -43,7 +60,7 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateInputs()) {
-            console.log("form submitted")
+            
         }
     };
 
