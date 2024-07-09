@@ -143,7 +143,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'rest_api.CustomUser'
+
 AUTHENTICATION_BACKENDS = [
     'rest_api.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as a fallback
 ]
+
+from rest_framework_simplejwt.settings import api_settings
+
+api_settings.USER_ID_FIELD = 'userId'
+api_settings.USER_ID_CLAIM = 'user_id'
