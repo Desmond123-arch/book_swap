@@ -30,9 +30,10 @@ class UserSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 class BookSerializer(serializers.ModelSerializer):
     posted_by = UserSerializer(read_only=True)
+
     class Meta:
         model = Book
-        fields = ['pk' ,'title', 'author', 'genre', 'condition', 'description', 'image', 'posted_by', 'created_at']
+        fields = ['pk', 'title', 'author', 'genre', 'condition', 'description', 'image', 'posted_by', 'created_at']
 class UserBookSerializer(serializers.ModelSerializer):
         class Meta:
              model = Book

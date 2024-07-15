@@ -107,40 +107,41 @@ class BookDetail(generics.RetrieveDestroyAPIView):
     #     serializer = BookSerializer(book)
     #     return Response(serializer.data)
 
-    # def put(self, request, pk, format=None):
-    #     """ Update a particular bokk in the database """
-    #     book = self.get_object(pk)
-    #     serializer = BookSerializer(book, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # def delete(self, request, pk, formate=None):
-    #     """ Delete a particular book from the database """
-    #     book = Book.objects.get(pk=pk)
-    #     book.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserBooks(generics.ListAPIView):
+
+class UserBooks(generics.ListCreateAPIView):
     """ Get all books of User"""
-    serializer_class = UserBookSerializer
+    serializer_class = BookSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-
+    
     def get_queryset(self):
         user = self.request.user
         if user:
             query_set = user.book_set.all()
             print(query_set)
             return query_set
+        
+    def perform_create(self, serializer):
+        return serializer.save(posted_by_id=self.request.user.userId)
+        
+    def post(self, request, *args, **kwargs):
+        """ Post a new book"""
+        data = request.data
+        serializer = BookSerializer(data=data)
+        if serializer.is_valid():
+           self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
 
 class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
     """ Get a particular book posted by the user"""
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = UserBookSerializer
+    serializer_class = BookSerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -149,3 +150,19 @@ class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
             query_set = user.book_set.filter(pk=book_id)
             print(query_set)
             return query_set
+        
+    def put(self, request, pk, format=None):
+        """ Update a particular bokk in the database """
+        user = self.request.user
+        book = user.book_set.get(pk=pk)
+        serializer = BookSerializer(book, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        """ Delete a particular book from the database """        
+        book = Book.objects.get(pk=pk)
+        book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
