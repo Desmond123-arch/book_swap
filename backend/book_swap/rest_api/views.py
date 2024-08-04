@@ -20,7 +20,7 @@ class Register(TokenObtainPairView):
     """ Register a user"""
 
     def post(self, request, *args, **kwargs):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data["body"])
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)

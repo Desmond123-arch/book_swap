@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import google_icon from '../images/google_icon.svg'
-import axios from 'axios'
+import axios from 'axios';
 
 async function loginUser(username, password){
     try {
-        const response = await axios.post('http://localhost:8000/token', {
-            username,
-            password,
-        });
-        const {access, refresh} = response.data;
-
-        localStorage.setItem('access_token', access);
-        localStorage.setItem('refresh_token', refresh);
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: {"email": username, "password": password}
+          };
+        await axios.post("http://127.0.0.1:8000/auth/login", requestOptions)
+        .then(response => {
+            const access = response.data["access_token"]
+            const refresh = response.data["refresh_token"]
+            localStorage.setItem('access_token', access);
+            localStorage.setItem('refresh_token', refresh);
+            console.log(response)
+        })
+        console.log(username, password)
         return true;
     }
     catch(error){
@@ -60,7 +66,7 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateInputs()) {
-            
+            loginUser(formValues.email, formValues.password)
         }
     };
 
@@ -78,7 +84,7 @@ export default function Login() {
                 </div>
                 <div className="mx-auto w-[85%] md:w-[70%] mb-4">
                     <label htmlFor="password" className="block mb-1 text-gray-600 font-bold text-lg self-st">Password</label>
-                    <input type="password" id="password" name="password" className="text-sm rounded-lg block w-full p-2 text-gray-700 border border-gray-400" value={formValues.password}
+                    <input type="password" id="password" name="password" autoComplete='current-password' className="text-sm rounded-lg block w-full p-2 text-gray-700 border border-gray-400" value={formValues.password}
                         onChange={handleInputChange}
                         onBlur={validateInputs}  />
                     {errors.password && <span className="text-red-500">{errors.password}</span>}
