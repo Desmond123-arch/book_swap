@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework.authentication import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
 
 User = get_user_model()
 
