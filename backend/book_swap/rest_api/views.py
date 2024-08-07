@@ -61,7 +61,7 @@ class Login(TokenObtainPairView):
             response.set_cookie(
                 'token', str(access_token),
                 httponly=True, 
-                secure = settings.SECURE_COOKIES,
+                secure = settings.SESSION_COOKIE_SECURE,
                 samesite='Lax'
             )
             return response
