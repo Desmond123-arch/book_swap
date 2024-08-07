@@ -165,3 +165,5 @@ from rest_framework_simplejwt.settings import api_settings
 
 api_settings.USER_ID_FIELD = 'userId'
 api_settings.USER_ID_CLAIM = 'user_id'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
