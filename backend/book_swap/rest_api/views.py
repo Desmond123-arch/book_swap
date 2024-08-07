@@ -31,6 +31,7 @@ class Register(TokenObtainPairView):
                 "refresh_token": str(refresh),
                 'data': serializer.data
             }, status=status.HTTP_200_OK)
+            
         else:
             return Response({
                 "message": "Invalid credentials",
@@ -49,12 +50,20 @@ class Login(TokenObtainPairView):
             serializer = UserSerializer(user)
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
-            return Response({
+            response = Response({
                 "message": "Login Successful",
                 "access_token": str(access_token),
                 "refresh_token": str(refresh),
                 'data': serializer.data
             }, status=status.HTTP_200_OK)
+        
+            response.set_cookie(
+                'token', str(access_token),
+                httponly=True, 
+                secure = settings.SECURE_COOKIES,
+                samesite='Lax'
+            )
+            return response
         else:
             return Response({
                 "error": "Login failed",
