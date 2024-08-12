@@ -74,7 +74,7 @@ class Login(TokenObtainPairView):
 
 class BookList(generics.ListCreateAPIView):
     serializer_class = BookSerializer
-
+    
     def get_queryset(self):
         queryset = Book.objects.all()
         genre = self.request.query_params.get('genre', None)

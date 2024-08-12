@@ -31,7 +31,7 @@ class Book(models.Model):
     genre = models.CharField(max_length=150)
     condition = models.CharField(max_length=50)
     description = models.TextField()
-    image = models.ImageField(upload_to='book_images/', null=True)
+    image = models.ImageField(upload_to='media/book_images/', null=True)
     posted_by = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
