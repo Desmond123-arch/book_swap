@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import google_icon from '../images/google_icon.svg'
 import axios from 'axios';
-
+import Cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom';
 async function loginUser(username, password){
     try {
         const requestOptions = {
@@ -9,22 +10,20 @@ async function loginUser(username, password){
             headers: { "Content-Type": "application/json" },
             body: {"email": username, "password": password}
           };
-        await axios.post("http://127.0.0.1:8000/auth/login", requestOptions)
+        await axios.post("https://book-swap-sigma.vercel.app/auth/login", requestOptions)
         .then(response => {
             const access = response.data["access_token"]
             const refresh = response.data["refresh_token"]
-            localStorage.setItem('access_token', access);
-            localStorage.setItem('refresh_token', refresh);
-            console.log(response)
+            Cookies.set('access_token', access, {secure:"true"});
+            Cookies.set('refresh_token', refresh, {secure: 'true'});
         })
-        console.log(username, password)
-        return true;
     }
     catch(error){
-        console.log("An error occured", error);
+        throw error
     }
 }
 export default function Login() {
+    const history = useNavigate()
     // VALIDATE EMAILS
     const [formValues, setFormValues] = useState({
         email: "",
@@ -63,10 +62,13 @@ export default function Login() {
         return Object.values(newErrors).every(error => error === "");
     }
     //Handle submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
+        let result = false
         e.preventDefault();
         if (validateInputs()) {
-            loginUser(formValues.email, formValues.password)
+            await loginUser(formValues.email, formValues.password)
+            history('/browse')
+            sessionStorage.setItem("isLoggedIn", 'true');
         }
     };
 
