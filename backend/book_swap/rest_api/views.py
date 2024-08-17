@@ -139,11 +139,11 @@ class UserBooks(generics.ListCreateAPIView):
         
     def post(self, request, *args, **kwargs):
         """ Post a new book"""
-        data = request.data
+        data = request.data["body"]
         serializer = BookSerializer(data=data)
         if serializer.is_valid():
            self.perform_create(serializer)
-           return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     

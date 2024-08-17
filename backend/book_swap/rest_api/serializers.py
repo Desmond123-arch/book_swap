@@ -34,6 +34,10 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['pk', 'title', 'author', 'genre', 'condition', 'description', 'image', 'posted_by', 'created_at']
+    
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        return instance
 class UserBookSerializer(serializers.ModelSerializer):
         class Meta:
              model = Book
