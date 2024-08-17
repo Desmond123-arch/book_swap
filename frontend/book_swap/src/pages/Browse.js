@@ -21,6 +21,7 @@ async function getBooks() {
 }
 export default function Browse() {
     const [books, setBooks] = useState([]);
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
     useEffect(() => {
         async function loadBooks() {
             const bookData =await getBooks();
@@ -29,7 +30,14 @@ export default function Browse() {
         loadBooks();
     }, []);
     return (
-        <div className="w-full md:w-[70%] mx-auto my-7">
+        isLoggedIn === null ?
+        (
+            <div className='center'>
+             You must have an account
+            </div>
+        ):
+        (
+            <div className="w-full md:w-[70%] mx-auto my-7">
             <div className="text-center md:text-start">
                 <h1 className="font-bold text-4xl">Books available</h1>
                 <p className="font-thin text-md text-gray-600 my-2 w-[70%] mx-auto md:w-full md:mx-0">Browse through all the available books on the platform</p>
@@ -62,5 +70,6 @@ export default function Browse() {
         </div>
 
         </div>
+        )
     )
 }

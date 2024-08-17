@@ -1,49 +1,65 @@
-import hobbit from '../images/hobbit.jpg';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Cookies from 'js-cookie'
 
-let book = [{
-    "id": 1,
-    "title": "1984",
-    "author": "George Orwell",
-    "genre": "Dystopian",
-    "condition": "Good",
-    "description": "A novel about the dangers of totalitarianism.",
-    "image": hobbit,
-    "posted_by": {
-        "id": 1,
-        "username": "john_doe",
-        "email": "john@example.com"
-    },
-    "created_at": "2024-06-14T18:30:00Z"
-}]
+
+
+async function  getBook(bookId) {
+    try{
+        const accesstoken = Cookies.get('access_token');
+        const response = await axios.get("https://book-swap-sigma.vercel.app\\"+ bookId, {
+            headers: {
+                'Authorization': `Bearer ${accesstoken}`,
+                'Accept':'application/json'
+            }
+        });
+        return response.data;
+    }
+    catch(error){
+        console.log(error);
+        throw error;
+    }
+}
 
 export default function BookDetail() {
+    const [book, setBook] = useState([]);
+    const bookId = useParams().bookId;
+    useEffect(() => 
+    {
+        async function loadBook(bookId){
+            const fetchedBook = await getBook(bookId);
+            setBook(fetchedBook)
+        }
+        loadBook(bookId)
+    }, [bookId])
     return (
         <div className=" w-full md:w-[80%] mx-auto px-4 py-8 border">
             <div className="mx-auto w-[85%] md:w-[70%] mb-2">
-                <img src={book[0].image} alt="book" className="w-full h-auto max-h-[30rem] object-fill object-center mx-auto rounded-lg"></img>
+                <img src={book.image} alt="book" className="w-full h-auto max-h-[30rem] object-fill object-center mx-auto rounded-lg"></img>
             </div>
             <div className="mx-auto w-[85%] md:w-[70%] mb-2">
                 <h3 className="text-[#181311] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Title</h3>
                 <p className="text-[#181311] text-base font-normal leading-normal pb-3 pt-1 px-4">
-                    {book[0].title}
+                    {book.title}
                 </p>
             </div>
             <div className="mx-auto w-[85%] md:w-[70%] mb-2">
                 <h3 className="text-[#181311] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Author</h3>
                 <p className="text-[#181311] text-base font-normal leading-normal pb-3 pt-1 px-4">
-                    {book[0].author}
+                    {book.author}
                 </p>
             </div>
             <div className="mx-auto w-[85%] md:w-[70%] mb-2">
                 <h3 className="text-[#181311] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Description</h3>
                 <p className="text-[#181311] text-base font-normal leading-normal pb-3 pt-1 px-4">
-                    {book[0].description}
+                    {book.description}
                 </p>
             </div>
             <div className="mx-auto w-[85%] md:w-[70%] mb-2">
                 <h3 className="text-[#181311] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Condition</h3>
                 <p className="text-[#181311] text-base font-normal leading-normal pb-3 pt-1 px-4">
-                    {book[0].condition}
+                    {book.condition}
                 </p>
             </div>
             <div className="mx-auto w-[85%] md:w-[70%] mb-2">

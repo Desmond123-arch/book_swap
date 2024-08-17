@@ -3,27 +3,36 @@ import google_icon from '../images/google_icon.svg'
 import axios from 'axios';
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom';
-async function loginUser(username, password){
+import { ClimbingBoxLoader } from 'react-spinners';
+async function loginUser(username, password) {
     try {
         const requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: {"email": username, "password": password}
-          };
-        await axios.post("https://book-swap-sigma.vercel.app/auth/login", requestOptions)
-        .then(response => {
-            const access = response.data["access_token"]
-            const refresh = response.data["refresh_token"]
-            Cookies.set('access_token', access, {secure:"true"});
-            Cookies.set('refresh_token', refresh, {secure: 'true'});
-        })
+            body: { "email": username, "password": password }
+        };
+       const response = await axios.post("https://book-swap-sigma.vercel.app/auth/login", requestOptions)
+       const access = response.data["access_token"]
+       const refresh = response.data["refresh_token"]
+       const firstName = response.data['data']['firstName']
+       const lastName = response.data['data']['lastName']
+       const email = response.data['data']['email']
+       Cookies.set('access_token', access, { secure: "true" });
+       Cookies.set('refresh_token', refresh, { secure: 'true' });
+       localStorage.setItem('firstName', firstName);
+       localStorage.setItem('lastName', lastName);
+       localStorage.setItem('email', email);
+       console.log(response);
+       return true;
     }
-    catch(error){
-        throw error
+    catch (error) {
+        return error.response.data.errors;
     }
 }
 export default function Login() {
-    const history = useNavigate()
+    const history = useNavigate();
+    const [redirect, setRedirect] = useState(false);
+    const [disabled, setDisabled] = useState(false);
     // VALIDATE EMAILS
     const [formValues, setFormValues] = useState({
         email: "",
@@ -57,23 +66,40 @@ export default function Login() {
         } else {
             newErrors.password = "";
         }
-        
+
         setErrors(newErrors);
         return Object.values(newErrors).every(error => error === "");
     }
     //Handle submission
     const handleSubmit = async (e) => {
-        let result = false
         e.preventDefault();
         if (validateInputs()) {
-            await loginUser(formValues.email, formValues.password)
-            history('/browse')
-            sessionStorage.setItem("isLoggedIn", 'true');
+            setDisabled(true);
+            setRedirect(true);
+            const result = await loginUser(formValues.email, formValues.password);
+            if (result === true){
+                setRedirect(false);
+                history('/browse');
+                sessionStorage.setItem("isLoggedIn", 'true');
+            }
+            else
+            {
+               setErrors(result);
+                setRedirect(false);
+                setDisabled(false);
+            }
+            
         }
     };
 
     return (
-        <div className="border rounded-xl m-10 md:w-[50%] lg:w-[35%] mx-auto shadow-sm shadow-gray-300">
+        redirect?
+        (
+            <div className='center'>
+                <ClimbingBoxLoader/>
+            </div>
+        ):
+        (    <div className="border rounded-xl m-10 md:w-[50%] lg:w-[35%] mx-auto shadow-sm shadow-gray-300">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm text-center">
                 <h1 className="mt-6 text-2xl font-bold">Book share</h1>
                 <h2 className="mb-5 text-center text-lg font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
@@ -88,11 +114,13 @@ export default function Login() {
                     <label htmlFor="password" className="block mb-1 text-gray-600 font-bold text-lg self-st">Password</label>
                     <input type="password" id="password" name="password" autoComplete='current-password' className="text-sm rounded-lg block w-full p-2 text-gray-700 border border-gray-400" value={formValues.password}
                         onChange={handleInputChange}
-                        onBlur={validateInputs}  />
+                        onBlur={validateInputs} />
                     {errors.password && <span className="text-red-500">{errors.password}</span>}
                     <p className="text-end mt-1"><a href="home" className=" underline text-gray-300 hover:text-gray-500">Forgot Password</a></p>
                 </div>
-                <button className="text-xl rounded-lg block mx-auto w-[85%] md:w-[70%] mb-4 p-2 border border-gray-400 bg-orange-500 font-bold text-white shadow-md shadow-gray-300 hover:shadow-gray-400">Log in</button>
+                <button className="text-xl rounded-lg block mx-auto w-[85%] md:w-[70%] mb-4 p-2 border border-gray-400 bg-orange-500 font-bold text-white shadow-md shadow-gray-300 hover:shadow-gray-400 disabled:bg-orange-300" disabled={disabled}>
+                Log in
+                </button>
                 <div className="mx-auto w-[85%] md:w-[70%] mb-4">
                     <div className="flex items-center">
                         <div className="flex-grow bg bg-gray-300 h-0.5"></div>
@@ -105,6 +133,6 @@ export default function Login() {
                     </a>
                 </div>
             </form>
-        </div>
+        </div>)
     );
 }
