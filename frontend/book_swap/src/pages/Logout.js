@@ -5,8 +5,11 @@ export default function useLogout() {
     const navigate = useNavigate();
 
     const logout = () => {
-        Cookies.remove('access');
-        Cookies.remove('refresh');
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        localStorage.removeItem('firstName');
+        localStorage.removeItem('lastName');
+        localStorage.removeItem('email');
         sessionStorage.removeItem('isLoggedIn');
         
         navigate('/login');

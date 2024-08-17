@@ -1,4 +1,38 @@
+import axios from 'axios';
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
+
+async function PostBook(bookData) {
+    try {
+        const accessToken = Cookies.get('access_token');
+        const requestOptions = {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        };
+
+        const response = await axios.post(
+            "https://book-swap-sigma.vercel.app/user_books",
+            {
+                title: bookData.title,
+                author: bookData.author,
+                genre: bookData.genre,
+                condition: bookData.condition,
+                description: bookData.description,
+                image: bookData.image
+            },
+            requestOptions
+        );
+        console.log(response);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
 
 export default function Post() {
     const [formData, setFormData] = useState({
@@ -7,11 +41,12 @@ export default function Post() {
         genre: '',
         condition: '',
         description: '',
-        image: null
+        image: ''
     });
 
     const [errors, setErrors] = useState({});
-
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState("");
     const validate = () => {
         const errors = {};
         if (!formData.title) errors.title = 'Title is required';
@@ -37,7 +72,14 @@ export default function Post() {
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
             // Submit form data
-            console.log(formData);
+            const response = PostBook(formData);
+            if (response !== false){
+                navigate("/browse");
+            }
+            else{
+                setErrorMessage("An error occured");
+            }
+
         }
     };
 
@@ -46,6 +88,7 @@ export default function Post() {
             <h1 className="font-bold text-2xl text-center">Post a Book</h1>
             <p className="font-thin text-md text-center text-gray-400">Share your books with the community</p>
             <form onSubmit={handleSubmit}>
+            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
                 <div className="mx-auto w-[85%] md:w-[40%] mb-4">
                     <label htmlFor="title" className="block mb-1 text-gray-600 font-bold text-lg self-st">Title</label>
                     <input
