@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.authentication import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.conf import settings
+from google_drive import  create_folder, upload_file
 
 User = get_user_model()
 
@@ -32,7 +33,7 @@ class Register(TokenObtainPairView):
                 "refresh_token": str(refresh),
                 'data': serializer.data
             }, status=status.HTTP_200_OK)
-            
+
         else:
             return Response({
                 "message": "Invalid credentials",
@@ -57,11 +58,11 @@ class Login(TokenObtainPairView):
                 "refresh_token": str(refresh),
                 'data': serializer.data
             }, status=status.HTTP_200_OK)
-        
+
             response.set_cookie(
                 'token', str(access_token),
-                httponly=True, 
-                secure = settings.SESSION_COOKIE_SECURE,
+                httponly=True,
+                secure=settings.SESSION_COOKIE_SECURE,
                 samesite='Lax'
             )
             return response
@@ -74,7 +75,7 @@ class Login(TokenObtainPairView):
 
 class BookList(generics.ListCreateAPIView):
     serializer_class = BookSerializer
-    
+
     def get_queryset(self):
         queryset = Book.objects.all()
         genre = self.request.query_params.get('genre', None)
@@ -119,34 +120,37 @@ class BookDetail(generics.RetrieveDestroyAPIView):
     #     return Response(serializer.data)
 
 
-
-
 class UserBooks(generics.ListCreateAPIView):
     """ Get all books of User"""
     serializer_class = BookSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         user = self.request.user
         if user:
             query_set = user.book_set.all()
             print(query_set)
             return query_set
-        
+
     def perform_create(self, serializer):
         return serializer.save(posted_by_id=self.request.user.userId)
-        
+
     def post(self, request, *args, **kwargs):
         """ Post a new book"""
-        data = request.data["body"]
+        data = request.data.copy()
+
+        image = request.FILES.get('image')
+        if image:
+            file_name = image.name
+            url = upload_file(image, file_name)
+            data['image'] = url
         serializer = BookSerializer(data=data)
         if serializer.is_valid():
-           self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
 
 class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
     """ Get a particular book posted by the user"""
@@ -161,7 +165,7 @@ class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
             query_set = user.book_set.filter(pk=book_id)
             print(query_set)
             return query_set
-        
+
     def put(self, request, pk, format=None):
         """ Update a particular bokk in the database """
         user = self.request.user
@@ -171,9 +175,9 @@ class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def delete(self, request, pk, format=None):
-        """ Delete a particular book from the database """        
+        """ Delete a particular book from the database """
         book = Book.objects.get(pk=pk)
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
