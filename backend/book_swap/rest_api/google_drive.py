@@ -3,6 +3,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 import mimetypes
+import tempfile
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -69,37 +70,57 @@ def delete_files(file_or_folder_id):
         print(f"Error details: {str(e)}")
 
 
-def upload_file(file_path, file_name, parent_folder_id=None):
-    """ Upload a file to the google drive """
-    mime_type, _ = mimetypes.guess_type(file_path)
-    file_metadata ={
+def upload_file(file, file_name, parent_folder_id=None):
+    """Upload a file to Google Drive."""
+    print("called file upload")
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        # Write the uploaded file to the temporary file
+        for chunk in file.chunks():
+            temp_file.write(chunk)
+        temp_file_path = temp_file.name
+
+    mime_type, _ = mimetypes.guess_type(temp_file_path)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'  # Default MIME type if not detected
+
+    file_metadata = {
         'name': file_name,
-        'parents':['1JfguZenCdvhuAwLR7AD7jwYv61SmuEbH']
+        'parents': [parent_folder_id] if parent_folder_id else []
     }
-    media = MediaFileUpload(file_path, mimetype=mime_type, resumable=True)
+    media = MediaFileUpload(temp_file_path, mimetype=mime_type, resumable=True)
 
-    permission = {
-        'type': 'anyone',
-        'role': 'reader',
-    }
-    file = drive_service.files().create(
-        body=file_metadata, 
-        media_body=media,
-        fields='id'
-    ).execute()
-    file_id = file.get('id')
+    try:
+        # Upload the file to Google Drive
+        file = drive_service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields='id'
+        ).execute()
+        file_id = file.get('id')
 
-    drive_service.permissions().create(
-        fileId=file_id,
-        body=permission,
-    ).execute()
+        # Set permissions for the file
+        permission = {
+            'type': 'anyone',
+            'role': 'reader',
+        }
+        drive_service.permissions().create(
+            fileId=file_id,
+            body=permission
+        ).execute()
 
-    file_url = f"https://drive.google.com/uc?id={file_id}&export=view"
+        file_url = f"https://drive.google.com/thumbnail?id={file_id}"
+        print(file_url)
+        return file_url
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Clean up the temporary file
+        os.remove(temp_file_path)
 
-    print(file_url)
-    return file_url
 
 
 
 # list_folder(delete=True)
 # upload_file('./shoe.jpg', file_name='shoe', parent_folder_id=id)
+
+

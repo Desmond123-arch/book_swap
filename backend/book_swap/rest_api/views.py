@@ -13,10 +13,11 @@ from django.contrib.auth import get_user_model
 from rest_framework.authentication import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.conf import settings
-from google_drive import  create_folder, upload_file
+from .google_drive import upload_file, create_folder
 
 User = get_user_model()
 
+id = create_folder('book_swap')
 
 class Register(TokenObtainPairView):
     """ Register a user"""
@@ -126,6 +127,12 @@ class UserBooks(generics.ListCreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get_folder_id(self):
+        # This function ensures the folder is created and returns the folder ID
+        folder_name = 'book_swap'
+        folder = create_folder(folder_name)
+        return folder.get('id')
+
     def get_queryset(self):
         user = self.request.user
         if user:
@@ -143,13 +150,15 @@ class UserBooks(generics.ListCreateAPIView):
         image = request.FILES.get('image')
         if image:
             file_name = image.name
-            url = upload_file(image, file_name)
+            parent_folder_id = self.get_folder_id()  # Ensure folder ID is fetched dynamically
+            url = upload_file(image, file_name, parent_folder_id=parent_folder_id)
             data['image'] = url
         serializer = BookSerializer(data=data)
         if serializer.is_valid():
             self.perform_create(serializer)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class UserBooksDetail(generics.RetrieveUpdateDestroyAPIView):
