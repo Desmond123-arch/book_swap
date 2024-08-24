@@ -8,7 +8,7 @@ import Cookies from 'js-cookie'
 async function  getBook(bookId) {
     try{
         const accesstoken = Cookies.get('access_token');
-        const response = await axios.get("https://book-swap-sigma.vercel.app\\"+ bookId, {
+        const response = await axios.get("http://127.0.0.1:8000\\"+ bookId, {
             headers: {
                 'Authorization': `Bearer ${accesstoken}`,
                 'Accept':'application/json'

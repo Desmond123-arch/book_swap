@@ -7,13 +7,12 @@ import Cookies from 'js-cookie'
 async function getMyBooks() {
     try{
         const accesstoken = Cookies.get('access_token');
-        const response = await axios.get("https://book-swap-sigma.vercel.app/user_books", {
+        const response = await axios.get("http://127.0.0.1:8000/user_books", {
             headers: {
                 'Authorization': `Bearer ${accesstoken}`,
                 'Accept':'application/json'
             }
         });
-        console.log(response);
         return response.data
     } 
     catch(error){
@@ -46,6 +45,5 @@ export default function MyBooks(){
                 </div>
             ))}
                 </div>
-        </div>
-                )
+        </div>)
 }

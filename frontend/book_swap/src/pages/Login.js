@@ -11,7 +11,7 @@ async function loginUser(username, password) {
             headers: { "Content-Type": "application/json" },
             body: { "email": username, "password": password }
         };
-       const response = await axios.post("https://book-swap-sigma.vercel.app/auth/login", requestOptions)
+       const response = await axios.post("http://127.0.0.1:8000/auth/login", requestOptions)
        const access = response.data["access_token"]
        const refresh = response.data["refresh_token"]
        const firstName = response.data['data']['firstName']
@@ -121,17 +121,6 @@ export default function Login() {
                 <button className="text-xl rounded-lg block mx-auto w-[85%] md:w-[70%] mb-4 p-2 border border-gray-400 bg-orange-500 font-bold text-white shadow-md shadow-gray-300 hover:shadow-gray-400 disabled:bg-orange-300" disabled={disabled}>
                 Log in
                 </button>
-                <div className="mx-auto w-[85%] md:w-[70%] mb-4">
-                    <div className="flex items-center">
-                        <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-                        <div className="flex-grow-0 mx-5 text text-black">or continue with</div>
-                        <div className="flex-grow bg bg-gray-300 h-0.5"></div>
-                    </div>
-                    <a href="home" className="mt-8 mx-auto w-[80%] mb-4 flex items-center justify-center border rounded-2xl shadow-md shadow-gray-300 hover:shadow-gray-400">
-                        <div href="home" className='w-[20%]'><img src={google_icon} alt="google icon" /></div>
-                        <p className='text-lg'>Continue with google</p>
-                    </a>
-                </div>
             </form>
         </div>)
     );
