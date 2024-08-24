@@ -17,7 +17,7 @@ async function CreateAccount(first_name, last_name, userEmail, password) {
                 "email": userEmail
             }
         }
-        const response = await axios.post("https://book-swap-sigma.vercel.app/auth/register", requestOptions)
+        const response = await axios.post("http://127.0.0.1:8000/auth/register", requestOptions)
         const access = response.data["access_token"]
         const refresh = response.data["refresh_token"]
         const firstName = response.data['data']['firstName']

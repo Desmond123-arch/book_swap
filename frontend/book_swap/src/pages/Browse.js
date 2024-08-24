@@ -7,7 +7,7 @@ async function getBooks() {
     try {
         const accessToken = Cookies.get('access_token');
 
-        const response = await axios.get("https://book-swap-sigma.vercel.app", {
+        const response = await axios.get("http://127.0.0.1:8000", {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Accept': 'application/json'
@@ -19,6 +19,9 @@ async function getBooks() {
         return [];
     }
 }
+
+
+
 export default function Browse() {
     const [books, setBooks] = useState([]);
     const isLoggedIn = sessionStorage.getItem('isLoggedIn');
@@ -60,6 +63,7 @@ export default function Browse() {
                 <div key={book.pk} className='flex flex-col h-full'>
                     <Link to={`${pathConstants.BOOK_DETAIL.replace(':bookId', book.pk)}`}>
                         <img src={book.image} alt="book" className='h-[22rem] w-full rounded-2xl object-fill' />
+                        {console.log(book.image)}
                         <div className="my-4 px-4 flex-grow">
                             <p className='text-2xl font-bold'>{book.title}</p>
                             <p className='text-xl text-gray-200'>{book.author}</p>

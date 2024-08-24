@@ -6,30 +6,29 @@ import { useNavigate } from 'react-router-dom';
 async function PostBook(bookData) {
     try {
         const accessToken = Cookies.get('access_token');
+        const formData = new FormData();
+        
+        for (let key of Object.keys(bookData)) {
+            formData.append(key, bookData[key]);
+        }
+        
         const requestOptions = {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
             }
         };
 
         const response = await axios.post(
-            "https://book-swap-sigma.vercel.app/user_books",
-            {
-                title: bookData.title,
-                author: bookData.author,
-                genre: bookData.genre,
-                condition: bookData.condition,
-                description: bookData.description,
-                image: bookData.image
-            },
+            "http://127.0.0.1:8000/user_books",
+            formData,
             requestOptions
         );
+        
         console.log(response);
         return response.data;
     } catch (error) {
-        console.log(error);
+        console.error("Error posting book:", error.response?.data || error.message);
         return false;
     }
 }
